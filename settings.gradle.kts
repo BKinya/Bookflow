@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BookFlow"
+rootProject.name = "Bookflow"
 include(":app")
