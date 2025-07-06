@@ -1,6 +1,7 @@
 package com.beatrice.bookflow
 
 import android.app.Application
+import com.beatrice.bookflow.data.di.dataModule
 import logcat.AndroidLogcatLogger
 import logcat.LogPriority
 import org.koin.android.ext.koin.androidContext
@@ -17,10 +18,11 @@ class BookflowApp: Application() {
     }
 
     private fun startKoin(){
+        val modules = listOf(dataModule)
         startKoin {
             androidLogger()
             androidContext(this@BookflowApp)
-            modules()
+            modules(modules)
         }
     }
 
