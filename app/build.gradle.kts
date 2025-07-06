@@ -74,6 +74,10 @@ dependencies {
     // coil
     implementation(libs.coil.compose)
 
+    // workflow
+    implementation(libs.workflow.ui.core.android)
+    implementation(libs.workflow.ui.compose)
+
 
     // Test
     androidTestImplementation(libs.androidx.junit)
@@ -85,6 +89,10 @@ dependencies {
 
     // Kotlin test
     testImplementation(kotlin("test"))
+
+    // Workflow test
+    testImplementation(libs.workflow.testing.jvm)
+
 }
 
 tasks.withType<Test>{

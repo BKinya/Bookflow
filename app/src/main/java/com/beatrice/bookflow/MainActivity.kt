@@ -7,41 +7,26 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.beatrice.bookflow.ui.theme.BookFlowTheme
+import com.beatrice.bookflow.presentation.theme.BookFlowTheme
+import com.beatrice.bookflow.presentation.workflows.search.SearchWorkflow
+import com.squareup.workflow1.ui.compose.WorkflowRendering
+import com.squareup.workflow1.ui.compose.renderAsState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val rendering by SearchWorkflow.renderAsState(props = Unit, onOutput = {})
             BookFlowTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    WorkflowRendering(rendering, Modifier.padding(innerPadding))
+
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BookFlowTheme {
-        Greeting("Android")
-    }
-}

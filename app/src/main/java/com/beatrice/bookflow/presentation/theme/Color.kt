@@ -1,4 +1,4 @@
-package com.beatrice.bookflow.ui.theme
+package com.beatrice.bookflow.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
