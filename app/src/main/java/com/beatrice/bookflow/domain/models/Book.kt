@@ -1,12 +1,13 @@
 package com.beatrice.bookflow.domain.models
 
+import java.util.UUID
+
 data class Book(
-    val authorName: List<String>?,
-    val ebookAccess: String?,
+    val id: UUID,
+    val authors: List<String>?,
     val editionCount: Int?,
     val firstPublishYear: Int?,
-    val hasFulltext: Boolean?,
-    val language: List<String>?,
-    val publicScanB: Boolean?,
-    val title: String?
+    val title: String?,
+    val coverImageId: String?,
+    // TODO: Add ratings
 )

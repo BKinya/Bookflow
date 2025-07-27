@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.beatrice.bookflow.presentation.RootNavigationWorkflow
 import com.beatrice.bookflow.presentation.theme.BookFlowTheme
-import com.beatrice.bookflow.presentation.workflows.search.SearchWorkflow
 import com.squareup.workflow1.ui.compose.WorkflowRendering
 import com.squareup.workflow1.ui.compose.renderAsState
 
@@ -19,11 +19,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val rendering by SearchWorkflow.renderAsState(props = Unit, onOutput = {})
+            val rendering by RootNavigationWorkflow.renderAsState(props = Unit, onOutput = {}) // compose state
+            // TODO: Will this value be preserved when the activity is recreated?
             BookFlowTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     WorkflowRendering(rendering, Modifier.padding(innerPadding))
-
                 }
             }
         }

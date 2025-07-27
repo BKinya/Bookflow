@@ -1,4 +1,4 @@
-package com.beatrice.bookflow.presentation.workflows.search
+package com.beatrice.bookflow.presentation.search
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -48,10 +48,11 @@ import com.squareup.workflow1.ui.TextController
 import com.squareup.workflow1.ui.compose.ComposeScreen
 import com.squareup.workflow1.ui.compose.asMutableTextFieldValueState
 
+internal val OPTIONS = listOf("All", "Title", "Author", "Text", "Subject", "Lists")
 data class SearchScreen(
-    val searchByOptions: List<String>,
-    val searchBy: TextController,
-    val query: TextController,
+    val searchByOptions: List<String> = OPTIONS,
+    val searchBy: TextController = TextController(initialValue = OPTIONS[0]),
+    val query: TextController = TextController(),
     val onSearch: () -> Unit
 ) : ComposeScreen {
 
@@ -108,11 +109,14 @@ private fun Content(
             options = screen.searchByOptions
         )
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(32.dp))
         Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = screen.onSearch
         ) {
-            Text("Search")
+            Text(
+                modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
+               text = "Search")
         }
     }
 }
@@ -160,7 +164,7 @@ fun SearchRow(
 fun SearchOptionsMenu(
     modifier: Modifier = Modifier,
     selectedOption: TextFieldValue,
-    onSelectedOptionChanged: (TextFieldValue) -> Unit,
+    onSelectedOptionChanged: (TextFieldValue,) -> Unit,
     options: List<String>
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -175,7 +179,8 @@ fun SearchOptionsMenu(
             onValueChange = {},
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(topStart = 16.dp,
+                bottomStart = 16.dp),
             readOnly = true,
             maxLines = 1,
             trailingIcon = {
@@ -187,7 +192,7 @@ fun SearchOptionsMenu(
             },
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedBorderColor = Color.Transparent,
-                focusedBorderColor = Color.Gray,
+                focusedBorderColor = Color.DarkGray,
             )
         )
 
@@ -220,10 +225,11 @@ fun SearchField(
         onValueChange = onQueryChanged,
         maxLines = 1,
         modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(topEnd = 16.dp,
+            bottomEnd = 16.dp),
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedBorderColor = Color.Transparent,
-            focusedBorderColor = Color.Gray,
+            focusedBorderColor = Color.DarkGray,
         )
     )
 }
