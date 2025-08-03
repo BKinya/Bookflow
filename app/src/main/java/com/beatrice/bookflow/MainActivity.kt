@@ -4,23 +4,29 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.beatrice.bookflow.presentation.RootNavigationWorkflow
+import com.beatrice.bookflow.presentation.search.SearchScreen
 import com.beatrice.bookflow.presentation.theme.BookFlowTheme
+import com.beatrice.bookflow.presentation.viewmodel.SearchViewModel
 import com.squareup.workflow1.ui.compose.WorkflowRendering
-import com.squareup.workflow1.ui.compose.renderAsState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val searchViewModel: SearchViewModel by viewModels()
         enableEdgeToEdge()
         setContent {
-            val rendering by RootNavigationWorkflow.renderAsState(props = Unit, onOutput = {}) // compose state
-            // TODO: Will this value be preserved when the activity is recreated?
+            val rendering by searchViewModel.renderings.collectAsState(
+                initial = SearchScreen()
+            )
+
             BookFlowTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     WorkflowRendering(rendering, Modifier.padding(innerPadding))
@@ -29,4 +35,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
+
+
 

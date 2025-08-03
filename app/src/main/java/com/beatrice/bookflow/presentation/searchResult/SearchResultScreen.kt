@@ -1,5 +1,6 @@
 package com.beatrice.bookflow.presentation.searchResult
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,11 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,12 +51,16 @@ import com.squareup.workflow1.ui.compose.ComposeScreen
 import java.util.UUID
 
 data class SearchResultScreen(
-    val query: String, // todo: check the value of query sent to this screen
-    val searchState: SearchResultWorkflow.SearchState
+    val query: String,
+    val searchState: SearchResultWorkflow.SearchState,
+    val onBackPressed: () -> Unit = {}
 ) : ComposeScreen {
 
     @Composable
     override fun Content() {
+        BackHandler(
+            onBack = onBackPressed
+        )
         SearchResultScreen(
             screen = this,
             modifier = Modifier.padding(16.dp)
@@ -74,8 +82,8 @@ private fun SearchResultScreen(
             modifier = modifier,
             topBar = {
                 if (screen.searchState is SearchResultWorkflow.SearchState.Content) {
-                    Header(
-                        modifier = Modifier.fillMaxWidth(),
+                    HeaderColumn(
+                        onBackPressed = screen.onBackPressed,
                         query = screen.query,
                         resultCount = screen.searchState.result.numFound
                     )
@@ -105,17 +113,45 @@ private fun SearchResultScreen(
     }
 }
 
+@Composable
+private fun HeaderColumn(
+    modifier: Modifier = Modifier,
+    onBackPressed: () -> Unit,
+    query: String,
+    resultCount: Int
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        IconButton(
+            onClick = onBackPressed,
+            modifier = Modifier.size(32.dp)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.arrow_back),
+                contentDescription = "Back navigation arrow"
+            )
+        }
+        Spacer(Modifier.height(7.dp))
+        Header(
+            modifier = Modifier,
+            query = query,
+            resultCount = resultCount
+        )
+
+    }
+}
 
 @Composable
 private fun ContentScreen(
     modifier: Modifier = Modifier,
     content: SearchResultWorkflow.SearchState.Content,
 ) {
-    LazyColumn(modifier = modifier,
-        contentPadding = PaddingValues(vertical = 16.dp)) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(vertical = 16.dp)
+    ) {
         itemsIndexed(
-           items = content.result.books,
-            key = { index, book ->  book.id }
+            items = content.result.books,
+            key = { index, book -> book.id }
         ) { index, book ->
             BookRow(
                 book = book,
@@ -124,13 +160,13 @@ private fun ContentScreen(
                     .height(130.dp)
             )
 
-            if (index != content.result.books.lastIndex){
-                HorizontalDivider(thickness = 1.3.dp,
-                    color = Color.LightGray)
+            if (index != content.result.books.lastIndex) {
+                HorizontalDivider(
+                    thickness = 1.3.dp,
+                    color = Color.LightGray
+                )
             }
         }
-
-
     }
 }
 
@@ -167,22 +203,24 @@ private fun Header(
 }
 
 @Composable
-private fun BookCover(modifier: Modifier = Modifier,
-                      coverImageId: String?) {
-    if (coverImageId == null){
+private fun BookCover(
+    modifier: Modifier = Modifier,
+    coverImageId: String?
+) {
+    if (coverImageId == null) {
         Image(
             painterResource(R.drawable.book_placeholder),
             contentDescription = "Placeholder book cover",
             modifier = modifier.fillMaxHeight(),
             contentScale = ContentScale.Fit
         )
-    }else{
+    } else {
         AsyncImage(
             model = "https://covers.openlibrary.org/b/olid/${coverImageId}-M.jpg",
             contentDescription = null,
             placeholder = painterResource(R.drawable.book_placeholder),
             error = painterResource(R.drawable.book_placeholder),
-            modifier =  modifier.fillMaxHeight(),
+            modifier = modifier.fillMaxHeight(),
             contentScale = ContentScale.Fit
         )
     }
@@ -196,9 +234,12 @@ private fun BookRow(modifier: Modifier = Modifier, book: Book) {
         contentAlignment = Alignment.CenterStart
     ) {
         Row(modifier = Modifier) {
-            BookCover(coverImageId = book.coverImageId,
-                modifier = Modifier.fillMaxHeight(5f/6f)
-                    .width(100.dp))
+            BookCover(
+                coverImageId = book.coverImageId,
+                modifier = Modifier
+                    .fillMaxHeight(5f / 6f)
+                    .width(100.dp)
+            )
             Spacer(Modifier.width(10.dp))
             Column {
                 Text(
@@ -249,7 +290,6 @@ private fun ErrorScreen(modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-
     }
 }
 
@@ -281,25 +321,26 @@ private fun LoadingScreen(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun SearchResultPreview() {
-        SearchResultScreen(
-            screen = SearchResultScreen(
-                query = "Maya Angelou",
-                searchState = SearchResultWorkflow.SearchState.Content(
-                    result = SearchResult(
-                        numFound = 30,
-                        books = listOf(
-                            Book(
-                                authors = listOf("Maya Angelou"),
-                                editionCount = 40,
-                                firstPublishYear = 2001,
-                                title = "I know why the caged bird",
-                                coverImageId = "OL24762814M",
-                                id = UUID.randomUUID()
-                            )
+    SearchResultScreen(
+        screen = SearchResultScreen(
+            query = "Maya Angelou",
+            searchState = SearchResultWorkflow.SearchState.Content(
+                result = SearchResult(
+                    numFound = 30,
+                    books = listOf(
+                        Book(
+                            authors = listOf("Maya Angelou"),
+                            editionCount = 40,
+                            firstPublishYear = 2001,
+                            title = "I know why the caged bird",
+                            coverImageId = "OL24762814M",
+                            id = UUID.randomUUID()
                         )
                     )
                 )
+            ),
+            onBackPressed = {}
 
-            )
         )
+    )
 }

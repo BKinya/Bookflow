@@ -53,8 +53,8 @@ data class SearchScreen(
     val searchByOptions: List<String> = OPTIONS,
     val searchBy: TextController = TextController(initialValue = OPTIONS[0]),
     val query: TextController = TextController(),
-    val onSearch: () -> Unit
-) : ComposeScreen {
+    val onSearch: () -> Unit = {}
+) : ComposeScreen{
 
     @Composable
     override fun Content() {
@@ -208,8 +208,6 @@ fun SearchOptionsMenu(
                 )
             }
         }
-
-
     }
 }
 

@@ -4,19 +4,18 @@ import com.beatrice.bookflow.data.repository.BookRepository
 import com.beatrice.bookflow.domain.models.NetworkResult
 import com.beatrice.bookflow.domain.models.SearchResult
 import com.beatrice.bookflow.domain.workers.SearchWorker
-import com.beatrice.bookflow.presentation.searchResult.SearchResultWorkflow.SearchOutput
+import com.beatrice.bookflow.presentation.searchResult.SearchResultWorkflow.BackPressed
 import com.beatrice.bookflow.presentation.searchResult.SearchResultWorkflow.SearchResultProps
 import com.beatrice.bookflow.presentation.searchResult.SearchResultWorkflow.SearchState
 import com.squareup.workflow1.Snapshot
 import com.squareup.workflow1.StatefulWorkflow
 import com.squareup.workflow1.action
 import com.squareup.workflow1.runningWorker
-import logcat.logcat
 import org.koin.java.KoinJavaComponent.inject
 
 
 object SearchResultWorkflow :
-    StatefulWorkflow<SearchResultProps, SearchState, SearchOutput, SearchResultScreen>() {
+    StatefulWorkflow<SearchResultProps, SearchState, BackPressed, SearchResultScreen>() {
 
     val repository: BookRepository by inject(BookRepository::class.java)
 
@@ -26,11 +25,8 @@ object SearchResultWorkflow :
         val searchState: SearchState.Loading
     )
 
-    sealed interface SearchOutput {// Maybe I'll not need this TODO
-        data class BookResult(val data: SearchResult) : SearchOutput
-        @JvmInline
-        value class SearchFailed(val errorMessage: String) : SearchOutput
-    }
+    data object BackPressed
+
 
     sealed interface SearchState {
         data object Loading : SearchState
@@ -51,7 +47,7 @@ object SearchResultWorkflow :
         context: RenderContext
     ): SearchResultScreen {
         if (renderSearchState is SearchState.Loading) {
-            context.runningWorker(// On what thread though, is it blocking no
+            context.runningWorker(
                 SearchWorker(
                     repository = repository,
                     searchBy = renderProps.searchBy,
@@ -59,7 +55,6 @@ object SearchResultWorkflow :
                 ),
                 key = "Search Worker"
             ) { result ->
-                logcat("SEARCH_REQUEST") { "ui result $result" }
                 when (result) {
                     is NetworkResult.Content -> updateState(newState = SearchState.Content(result.searchResult))
                     is NetworkResult.Error -> updateState(newState = SearchState.Error("Something"))
@@ -67,8 +62,11 @@ object SearchResultWorkflow :
             }
         }
         val resultScreen = SearchResultScreen(
-            query = renderProps.searchBy,
-            searchState = renderSearchState
+            query = renderProps.query,
+            searchState = renderSearchState,
+            onBackPressed = context.eventHandler("onBackPressed") {
+                setOutput(BackPressed)
+            }
         )
         return resultScreen
     }
@@ -77,7 +75,6 @@ object SearchResultWorkflow :
 
 
     private fun updateState(newState: SearchState ) = action("onSearchResult") {
-        logcat("SEARCH_REQUEST") { "update state action" }
         state = newState
     }
 

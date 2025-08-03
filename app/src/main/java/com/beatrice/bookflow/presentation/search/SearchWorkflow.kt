@@ -34,7 +34,6 @@ object SearchWorkflow : StatefulWorkflow<Unit, State, SearchRequest, SearchScree
         renderState: State,
         context: RenderContext
     ): SearchScreen {
-
         return SearchScreen(
             searchByOptions = renderState.searchByOptions,
             searchBy = renderState.searchBy,
