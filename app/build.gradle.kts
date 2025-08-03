@@ -73,6 +73,8 @@ dependencies {
 
     // coil
     implementation(libs.coil.compose)
+    implementation(libs.coil.compose.network)
+    debugImplementation(libs.coil.compose.preview)
 
     // workflow
     implementation(libs.workflow.ui.core.android)

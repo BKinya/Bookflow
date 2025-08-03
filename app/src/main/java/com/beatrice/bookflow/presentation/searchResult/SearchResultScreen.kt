@@ -1,206 +1,305 @@
 package com.beatrice.bookflow.presentation.searchResult
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.ColorImage
+import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
+import coil3.compose.AsyncImagePreviewHandler
+import coil3.compose.LocalAsyncImagePreviewHandler
+import com.beatrice.bookflow.R
 import com.beatrice.bookflow.domain.models.Book
 import com.beatrice.bookflow.domain.models.SearchResult
 import com.squareup.workflow1.ui.compose.ComposeScreen
-import logcat.logcat
 import java.util.UUID
 
 data class SearchResultScreen(
-    val query: String,
+    val query: String, // todo: check the value of query sent to this screen
     val searchState: SearchResultWorkflow.SearchState
 ) : ComposeScreen {
 
     @Composable
     override fun Content() {
-        logcat("SEARCH_REQUEST") { "search result screen.... $searchState" }
-        SearchResultScreenContent(this)
+        SearchResultScreen(
+            screen = this,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
-private fun SearchResultScreenContent(
+private fun SearchResultScreen(
     screen: SearchResultScreen,
     modifier: Modifier = Modifier,
 ) {
+    val previewHandler = AsyncImagePreviewHandler {
+        ColorImage(Color.DarkGray.toArgb())
+    }
+    CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
+        Scaffold(
+            modifier = modifier,
+            topBar = {
+                if (screen.searchState is SearchResultWorkflow.SearchState.Content) {
+                    Header(
+                        modifier = Modifier.fillMaxWidth(),
+                        query = screen.query,
+                        resultCount = screen.searchState.result.numFound
+                    )
+                }
 
-    Scaffold { _ ->
-        when (val state = screen.searchState) {
-            is SearchResultWorkflow.SearchState.Content -> {
-              Box() {
-                Column() {
-                  Text(
-                    text = "Search results for \"${screen.query}\"",
-                    style = TextStyle(
-                      fontSize = 22.sp,
-                      fontWeight = FontWeight.W500,
-                      color = Color.DarkGray
+            }) { contentPadding ->
+            when (val state = screen.searchState) {
+                is SearchResultWorkflow.SearchState.Content -> ContentScreen(
+                    modifier = Modifier.padding(contentPadding),
+                    content = state,
+                )
+
+                is SearchResultWorkflow.SearchState.Error -> ErrorScreen(
+                    modifier = Modifier.padding(
+                        contentPadding
                     )
-                  )
-                  Spacer(Modifier.height(12.dp))
-                  Text(
-                    text = "${state.result.numFound} results",
-                    style = TextStyle(
-                      fontSize = 14.sp,
-                      color = Color.LightGray
+                )
+
+                SearchResultWorkflow.SearchState.Loading -> LoadingScreen(
+                    modifier = Modifier.padding(
+                        contentPadding
                     )
-                  )
-                }
-                LazyColumn {
-                  items(
-                    state.result.books,
-                    key = { it.id }) { book ->
-                    BookRow(book = book)
-                  }
-                }
-              }
+                )
             }
-            is SearchResultWorkflow.SearchState.Error -> ErrorScreen()
-            SearchResultWorkflow.SearchState.Loading -> LoadingScreen()
-        }
 
+        }
     }
 }
 
 
 @Composable
-private fun BookRow(modifier: Modifier = Modifier, book: Book) {
-    Row(modifier = modifier) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data("https://covers.openlibrary.org/b/olid/${book.coverImageId}-M.jpg").build(),
-            contentDescription = null,
-            contentScale = ContentScale.Crop
+private fun ContentScreen(
+    modifier: Modifier = Modifier,
+    content: SearchResultWorkflow.SearchState.Content,
+) {
+    LazyColumn(modifier = modifier,
+        contentPadding = PaddingValues(vertical = 16.dp)) {
+        itemsIndexed(
+           items = content.result.books,
+            key = { index, book ->  book.id }
+        ) { index, book ->
+            BookRow(
+                book = book,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp)
+            )
+
+            if (index != content.result.books.lastIndex){
+                HorizontalDivider(thickness = 1.3.dp,
+                    color = Color.LightGray)
+            }
+        }
+
+
+    }
+}
+
+@Composable
+private fun Header(
+    modifier: Modifier = Modifier,
+    query: String,
+    resultCount: Int
+) {
+    Column(
+        modifier = modifier
+    ) {
+        Text(
+            modifier = modifier.fillMaxWidth(),
+            text = "Search results for \"$query\"",
+            style = TextStyle(
+                fontSize = 20.sp,
+                fontWeight = FontWeight.W700,
+                color = Color.DarkGray,
+                textAlign = TextAlign.Center
+            )
         )
-        Spacer(Modifier.width(10.dp))
-        Column {
-            Text(
-                text = book.title ?: "",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.W500,
-                    color = Color.DarkGray
-                )
+        Spacer(Modifier.height(2.dp))
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = "$resultCount results",
+            style = TextStyle(
+                fontSize = 14.sp,
+                color = Color.Gray,
+                textAlign = TextAlign.Center
             )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = "by ${book.authors?.joinToString()}",
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.W500,
-                    color = Color.DarkGray
+        )
+    }
+}
+
+@Composable
+private fun BookCover(modifier: Modifier = Modifier,
+                      coverImageId: String?) {
+    if (coverImageId == null){
+        Image(
+            painterResource(R.drawable.book_placeholder),
+            contentDescription = "Placeholder book cover",
+            modifier = modifier.fillMaxHeight(),
+            contentScale = ContentScale.Fit
+        )
+    }else{
+        AsyncImage(
+            model = "https://covers.openlibrary.org/b/olid/${coverImageId}-M.jpg",
+            contentDescription = null,
+            placeholder = painterResource(R.drawable.book_placeholder),
+            error = painterResource(R.drawable.book_placeholder),
+            modifier =  modifier.fillMaxHeight(),
+            contentScale = ContentScale.Fit
+        )
+    }
+
+}
+
+@Composable
+private fun BookRow(modifier: Modifier = Modifier, book: Book) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Row(modifier = Modifier) {
+            BookCover(coverImageId = book.coverImageId,
+                modifier = Modifier.fillMaxHeight(5f/6f)
+                    .width(100.dp))
+            Spacer(Modifier.width(10.dp))
+            Column {
+                Text(
+                    text = book.title ?: "",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.W700,
+                        color = Color.DarkGray
+                    )
                 )
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = "first published  ${book.firstPublishYear}  -- ${book.editionCount} editions",
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.W500,
-                    color = Color.DarkGray
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "by ${book.authors?.joinToString()}",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.DarkGray
+                    )
                 )
-            )
+                Spacer(Modifier.height(24.dp))
+                Text(
+                    text = "first published  ${book.firstPublishYear}  -- ${book.editionCount} editions",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.W400,
+                        color = Color.Gray
+                    )
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun ErrorScreen(modifier: Modifier = Modifier) {
-  Column(
-    modifier = modifier
-      .fillMaxSize()
-      .background(Color.Red.copy(alpha = 0.8f))
-      .padding(16.dp),
-    verticalArrangement = Arrangement.Center,
-    horizontalAlignment = Alignment.CenterHorizontally
-  ) {
-    Text(
-      text = "Oops! Something went wrong.",
-      color = Color.White,
-      style = MaterialTheme.typography.headlineMedium,
-      textAlign = TextAlign.Center,
-      modifier = Modifier.padding(bottom = 8.dp)
-    )
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Red.copy(alpha = 0.8f))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Oops! Something went wrong.",
+            color = Color.White,
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
 
-  }
+    }
 }
 
 @Composable
 private fun LoadingScreen(modifier: Modifier = Modifier) {
-  Column(
-    modifier = modifier
-      .fillMaxSize()
-      .background(MaterialTheme.colorScheme.background),
-    verticalArrangement = Arrangement.Center,
-    horizontalAlignment = Alignment.CenterHorizontally
-  ) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-    CircularProgressIndicator(
-      color = MaterialTheme.colorScheme.primary,
-      modifier = Modifier.padding(bottom = 16.dp)
-    )
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
 
 
-    Text(
-      text = "Searching...",
-      style = MaterialTheme.typography.bodyMedium,
-      color = MaterialTheme.colorScheme.onBackground
-    )
-  }
+        Text(
+            text = "Searching...",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+    }
 }
 
+@OptIn(ExperimentalCoilApi::class)
 @Preview
 @Composable
 fun SearchResultPreview() {
-    SearchResultScreenContent(
-        screen = SearchResultScreen(
-            query = "I know why the caged bird sings",
-            searchState = SearchResultWorkflow.SearchState.Content(
-                result = SearchResult(
-                    numFound = 30,
-                    books = listOf(
-                        Book(
-                            authors = listOf("Maya Angelou"),
-                            editionCount = 40,
-                            firstPublishYear = 2001,
-                            title = "I know why the caged bird",
-                            coverImageId = "OL24762814M",
-                            id = UUID.randomUUID()
+        SearchResultScreen(
+            screen = SearchResultScreen(
+                query = "Maya Angelou",
+                searchState = SearchResultWorkflow.SearchState.Content(
+                    result = SearchResult(
+                        numFound = 30,
+                        books = listOf(
+                            Book(
+                                authors = listOf("Maya Angelou"),
+                                editionCount = 40,
+                                firstPublishYear = 2001,
+                                title = "I know why the caged bird",
+                                coverImageId = "OL24762814M",
+                                id = UUID.randomUUID()
+                            )
                         )
                     )
                 )
-            )
 
+            )
         )
-    )
 }
