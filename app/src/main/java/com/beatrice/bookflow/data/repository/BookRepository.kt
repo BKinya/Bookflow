@@ -18,17 +18,16 @@ class BookRepositoryImpl(
         logcat("SEARCH_REQUEST") { "Searching books with $searchQuery" }
         val params = mutableMapOf(
             "offset" to "0",
-            "limit" to "20" // TODO update when I implement pagination
+            "limit" to "20" // TODO  implement pagination
         )
         val key = if (searchby == "All") "q" else searchby.lowercase()
         params.put(key, searchQuery)
         return try {
             val searchResult = bookApiService.fetchBooks(params)
             val content = searchResult.toDomain()
-            logcat("SEARCH_REQUEST") { "try with $content" }
 
             NetworkResult.Content(content)
-        } catch (e: Exception) { // Should I be worried about coroutines exception here
+        } catch (e: Exception) {
             logcat("SEARCH_REQUEST") { "Failed with ${e.localizedMessage}" }
             NetworkResult.Error()
         }
