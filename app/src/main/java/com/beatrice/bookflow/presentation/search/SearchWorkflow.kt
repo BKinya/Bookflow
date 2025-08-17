@@ -51,7 +51,6 @@ object SearchWorkflow : StatefulWorkflow<Unit, State, SearchRequest, SearchScree
                         )
                     )
                 }
-
             }
         )
     }
