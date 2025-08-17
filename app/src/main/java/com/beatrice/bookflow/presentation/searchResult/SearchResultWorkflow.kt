@@ -74,7 +74,7 @@ object SearchResultWorkflow :
     override fun snapshotState(searchState: SearchState): Snapshot? = null
 
 
-    private fun updateState(newState: SearchState ) = action("onSearchResult") {
+    private fun updateState(newState: SearchState) = action("onSearchResult") {
         state = newState
     }
 

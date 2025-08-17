@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.flow
 
 class SearchWorker(
     private val repository: BookRepository,
-    private val searchQuery: String ,
+    private val searchQuery: String,
     private val searchBy: String
-): Worker<NetworkResult> {
+) : Worker<NetworkResult> {
     override fun run(): Flow<NetworkResult> = flow {
-     val result =   repository.fetchBooks(
+        val result = repository.fetchBooks(
             searchQuery = searchQuery,
             searchBy = searchBy
         )
@@ -20,7 +20,9 @@ class SearchWorker(
     }
 
     override fun doesSameWorkAs(otherWorker: Worker<*>): Boolean {
-        return otherWorker is SearchWorker
+        return otherWorker is SearchWorker &&
+                otherWorker.searchQuery == this.searchQuery &&
+                otherWorker.searchBy == this.searchBy
     }
 
 }
