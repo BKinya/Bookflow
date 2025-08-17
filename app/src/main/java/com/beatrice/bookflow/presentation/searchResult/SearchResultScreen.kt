@@ -247,7 +247,7 @@ private fun BookRow(modifier: Modifier = Modifier, book: Book) {
                         color = Color.DarkGray
                     )
                 )
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(6.dp))
                 Text(
                     text = "by ${book.authors?.joinToString()}",
                     style = TextStyle(

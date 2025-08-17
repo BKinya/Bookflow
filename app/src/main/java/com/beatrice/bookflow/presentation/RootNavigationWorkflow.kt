@@ -20,7 +20,7 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
         data class ShowSearchResult(
             val searchBy: String,
             val searchQuery: String,
-            val searchState: SearchState.Loading
+            val searchState: SearchState.Loading = SearchState.Loading
         ) : State
     }
 
@@ -65,7 +65,6 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
         state = ShowSearchResult(
             searchBy = searchBy,
             searchQuery = query,
-            searchState = SearchState.Loading
         )
     }
 

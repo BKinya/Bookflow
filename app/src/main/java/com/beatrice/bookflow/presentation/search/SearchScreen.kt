@@ -2,6 +2,7 @@ package com.beatrice.bookflow.presentation.search
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -49,12 +50,14 @@ import com.squareup.workflow1.ui.compose.ComposeScreen
 import com.squareup.workflow1.ui.compose.asMutableTextFieldValueState
 
 internal val OPTIONS = listOf("All", "Title", "Author", "Text", "Subject", "Lists")
+
 data class SearchScreen(
+    val errorMsg: String? = null,
     val searchByOptions: List<String> = OPTIONS,
     val searchBy: TextController = TextController(initialValue = OPTIONS[0]),
     val query: TextController = TextController(),
-    val onSearch: () -> Unit = {}
-) : ComposeScreen{
+    val onSearchTapped: () -> Unit = {}
+) : ComposeScreen {
 
     @Composable
     override fun Content() {
@@ -70,7 +73,9 @@ private fun Content(
     var selectedOption = screen.searchBy.asMutableTextFieldValueState()
     var query = screen.query.asMutableTextFieldValueState()
     Column(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -96,7 +101,22 @@ private fun Content(
             )
         )
 
-        Spacer(Modifier.height(96.dp))
+        Spacer(Modifier.height(84.dp))
+        Box(modifier = Modifier.fillMaxWidth()) {
+            screen.errorMsg?.let {
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.CenterStart),
+                    text = it,
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Light,
+                        fontStyle = FontStyle.Normal,
+                        color = Color.Red
+                    )
+                )
+                Spacer(Modifier.height(4.dp))
+            }
+        }
         SearchRow(
             selectedOption = selectedOption.value,
             onSelectedOptionChanged = { option ->
@@ -112,11 +132,12 @@ private fun Content(
         Spacer(Modifier.height(32.dp))
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = screen.onSearch
+            onClick = screen.onSearchTapped
         ) {
             Text(
                 modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
-               text = "Search")
+                text = "Search"
+            )
         }
     }
 }
@@ -164,7 +185,7 @@ fun SearchRow(
 fun SearchOptionsMenu(
     modifier: Modifier = Modifier,
     selectedOption: TextFieldValue,
-    onSelectedOptionChanged: (TextFieldValue,) -> Unit,
+    onSelectedOptionChanged: (TextFieldValue) -> Unit,
     options: List<String>
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -179,8 +200,10 @@ fun SearchOptionsMenu(
             onValueChange = {},
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-            shape = RoundedCornerShape(topStart = 16.dp,
-                bottomStart = 16.dp),
+            shape = RoundedCornerShape(
+                topStart = 16.dp,
+                bottomStart = 16.dp
+            ),
             readOnly = true,
             maxLines = 1,
             trailingIcon = {
@@ -223,8 +246,10 @@ fun SearchField(
         onValueChange = onQueryChanged,
         maxLines = 1,
         modifier = modifier,
-        shape = RoundedCornerShape(topEnd = 16.dp,
-            bottomEnd = 16.dp),
+        shape = RoundedCornerShape(
+            topEnd = 16.dp,
+            bottomEnd = 16.dp
+        ),
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedBorderColor = Color.Transparent,
             focusedBorderColor = Color.DarkGray,

@@ -22,7 +22,7 @@ object SearchResultWorkflow :
     data class SearchResultProps(
         val query: String,
         val searchBy: String,
-        val searchState: SearchState.Loading
+        val searchState: SearchState.Loading = SearchState.Loading
     )
 
     data object BackPressed
@@ -55,6 +55,7 @@ object SearchResultWorkflow :
                 ),
                 key = "Search Worker"
             ) { result ->
+                println("result => $result")
                 when (result) {
                     is NetworkResult.Content -> updateState(newState = SearchState.Content(result.searchResult))
                     is NetworkResult.Error -> updateState(newState = SearchState.Error("Something"))
