@@ -47,7 +47,6 @@ object SearchWorkflow : StatefulWorkflow<Unit, State, SearchRequest, SearchScree
                 )
             }
         )
-
     }
 
     override fun snapshotState(state: State): Snapshot? = null

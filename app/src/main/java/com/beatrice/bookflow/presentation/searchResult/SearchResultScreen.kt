@@ -108,7 +108,6 @@ private fun SearchResultScreen(
                     )
                 )
             }
-
         }
     }
 }
@@ -136,7 +135,6 @@ private fun HeaderColumn(
             query = query,
             resultCount = resultCount
         )
-
     }
 }
 
@@ -224,7 +222,6 @@ private fun BookCover(
             contentScale = ContentScale.Fit
         )
     }
-
 }
 
 @Composable

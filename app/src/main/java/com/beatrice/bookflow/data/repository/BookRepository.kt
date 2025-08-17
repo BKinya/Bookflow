@@ -15,7 +15,6 @@ class BookRepositoryImpl(
     private val bookApiService: BookApiService
 ) : BookRepository {
     override suspend fun fetchBooks(searchQuery: String, searchby: String): NetworkResult {
-        logcat("SEARCH_REQUEST") { "Searching books with $searchQuery" }
         val params = mutableMapOf(
             "offset" to "0",
             "limit" to "20" // TODO  implement pagination
