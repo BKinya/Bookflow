@@ -66,8 +66,6 @@ dependencies {
 
     // okhttp
     implementation(platform(libs.okhttp.bom))
-
-    // define any required OkHttp artifacts without version
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
 
@@ -88,12 +86,11 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    // Kotlin test
     testImplementation(kotlin("test"))
-
-    // Workflow test
     testImplementation(libs.workflow.testing.jvm)
+    testImplementation (libs.koin.test)
+    testImplementation(libs.junit4)
+    testImplementation(libs.koin.junit4)
 
 }
 

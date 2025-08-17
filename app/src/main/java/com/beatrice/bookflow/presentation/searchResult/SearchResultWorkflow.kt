@@ -22,7 +22,7 @@ object SearchResultWorkflow :
     data class SearchResultProps(
         val query: String,
         val searchBy: String,
-        val searchState: SearchState.Loading
+        val searchState: SearchState.Loading = SearchState.Loading
     )
 
     data object BackPressed

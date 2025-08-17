@@ -18,6 +18,7 @@ object SearchWorkflow : StatefulWorkflow<Unit, State, SearchRequest, SearchScree
         val searchByOptions: List<String>,
         val searchBy: TextController,
         val query: TextController,
+        val errorMsg: String? = null
     )
 
     override fun initialState(
@@ -38,13 +39,18 @@ object SearchWorkflow : StatefulWorkflow<Unit, State, SearchRequest, SearchScree
             searchByOptions = renderState.searchByOptions,
             searchBy = renderState.searchBy,
             query = renderState.query,
-            onSearch = context.eventHandler("onSearchTapped") {
-                setOutput(
-                    SearchRequest(
-                        searchBy = renderState.searchBy.textValue,
-                        query = renderState.query.textValue
+            errorMsg = renderState.errorMsg,
+            onSearchTapped = context.eventHandler("onSearchTapped") {
+                if (renderState.query.textValue.isEmpty()) {
+                    state = state.copy(errorMsg = "Search Query is required")
+                } else {
+                    setOutput(
+                        SearchRequest(
+                            searchBy = renderState.searchBy.textValue,
+                            query = renderState.query.textValue
+                        )
                     )
-                )
+                }
             }
         )
     }
