@@ -27,7 +27,7 @@ class BookRepositoryImpl(
 
             NetworkResult.Content(content)
         } catch (e: Exception) {
-            logcat("SEARCH_REQUEST") { "Failed with ${e.localizedMessage}" }q
+            logcat("SEARCH_REQUEST") { "Failed with ${e.localizedMessage}" }
             NetworkResult.Error()
         }
     }
