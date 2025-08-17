@@ -4,44 +4,39 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.beatrice.bookflow.ui.theme.BookFlowTheme
+import com.beatrice.bookflow.presentation.search.SearchScreen
+import com.beatrice.bookflow.presentation.theme.BookFlowTheme
+import com.beatrice.bookflow.presentation.viewmodel.SearchViewModel
+import com.squareup.workflow1.ui.compose.WorkflowRendering
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val searchViewModel: SearchViewModel by viewModels()
         enableEdgeToEdge()
         setContent {
+            val rendering by searchViewModel.renderings.collectAsState(
+                initial = SearchScreen()
+            )
+
             BookFlowTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    WorkflowRendering(rendering, Modifier.padding(innerPadding))
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BookFlowTheme {
-        Greeting("Android")
-    }
-}
+
+
+
