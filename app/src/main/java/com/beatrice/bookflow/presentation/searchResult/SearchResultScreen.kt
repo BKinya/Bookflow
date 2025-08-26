@@ -2,8 +2,6 @@ package com.beatrice.bookflow.presentation.searchResult
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,11 +16,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,7 +48,7 @@ import java.util.UUID
 
 data class SearchResultScreen(
     val query: String,
-    val searchState: SearchResultWorkflow.SearchState,
+    val result: SearchResult,
     val onBackPressed: () -> Unit = {}
 ) : ComposeScreen {
 
@@ -75,39 +71,23 @@ private fun SearchResultScreen(
     modifier: Modifier = Modifier,
 ) {
     val previewHandler = AsyncImagePreviewHandler {
-        ColorImage(Color.DarkGray.toArgb())
+        ColorImage(Color.Gray.toArgb())
     }
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
         Scaffold(
             modifier = modifier,
             topBar = {
-                if (screen.searchState is SearchResultWorkflow.SearchState.Content) {
-                    HeaderColumn(
-                        onBackPressed = screen.onBackPressed,
-                        query = screen.query,
-                        resultCount = screen.searchState.result.numFound
-                    )
-                }
+                HeaderColumn(
+                    onBackPressed = screen.onBackPressed,
+                    query = screen.query,
+                    resultCount = screen.result.numFound
+                )
 
             }) { contentPadding ->
-            when (val state = screen.searchState) {
-                is SearchResultWorkflow.SearchState.Content -> ContentScreen(
-                    modifier = Modifier.padding(contentPadding),
-                    content = state,
-                )
-
-                is SearchResultWorkflow.SearchState.Error -> ErrorScreen(
-                    modifier = Modifier.padding(
-                        contentPadding
-                    )
-                )
-
-                SearchResultWorkflow.SearchState.Loading -> LoadingScreen(
-                    modifier = Modifier.padding(
-                        contentPadding
-                    )
-                )
-            }
+            ContentScreen(
+                modifier = Modifier.padding(contentPadding),
+                content = screen,
+            )
         }
     }
 }
@@ -141,7 +121,7 @@ private fun HeaderColumn(
 @Composable
 private fun ContentScreen(
     modifier: Modifier = Modifier,
-    content: SearchResultWorkflow.SearchState.Content,
+    content: SearchResultScreen,
 ) {
     LazyColumn(
         modifier = modifier,
@@ -270,49 +250,6 @@ private fun BookRow(modifier: Modifier = Modifier, book: Book) {
     }
 }
 
-@Composable
-private fun ErrorScreen(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Red.copy(alpha = 0.8f))
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Oops! Something went wrong.",
-            color = Color.White,
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-    }
-}
-
-@Composable
-private fun LoadingScreen(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        CircularProgressIndicator(
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-
-        Text(
-            text = "Searching...",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-    }
-}
 
 @OptIn(ExperimentalCoilApi::class)
 @Preview
@@ -321,23 +258,20 @@ fun SearchResultPreview() {
     SearchResultScreen(
         screen = SearchResultScreen(
             query = "Maya Angelou",
-            searchState = SearchResultWorkflow.SearchState.Content(
-                result = SearchResult(
-                    numFound = 30,
-                    books = listOf(
-                        Book(
-                            authors = listOf("Maya Angelou"),
-                            editionCount = 40,
-                            firstPublishYear = 2001,
-                            title = "I know why the caged bird",
-                            coverImageId = "OL24762814M",
-                            id = UUID.randomUUID()
-                        )
+            result = SearchResult(
+                numFound = 30,
+                books = listOf(
+                    Book(
+                        authors = listOf("Maya Angelou"),
+                        editionCount = 40,
+                        firstPublishYear = 2001,
+                        title = "I know why the caged bird",
+                        coverImageId = "OL24762814M",
+                        id = UUID.randomUUID()
                     )
                 )
             ),
             onBackPressed = {}
-
         )
     )
 }
