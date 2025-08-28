@@ -7,7 +7,7 @@ import com.squareup.workflow1.StatefulWorkflow
 import com.squareup.workflow1.ui.TextController
 
 
-object SearchWorkflow : StatefulWorkflow<Unit, State, SearchRequest, SearchScreen>() {
+object SearchWorkflow : StatefulWorkflow<String, State, SearchRequest, SearchScreen>() {
 
     data class SearchRequest(
         val searchBy: String,
@@ -18,20 +18,21 @@ object SearchWorkflow : StatefulWorkflow<Unit, State, SearchRequest, SearchScree
         val searchByOptions: List<String>,
         val searchBy: TextController,
         val query: TextController,
-        val errorMsg: String? = null
+        val message: String = ""
     )
 
     override fun initialState(
-        props: Unit,
+        props: String,
         snapshot: Snapshot?
     ): State = State(
         searchByOptions = OPTIONS,
         searchBy = TextController(initialValue = OPTIONS[0]),
-        query = TextController()
+        query = TextController(),
+        message = props
     )
 
     override fun render(
-        renderProps: Unit,
+        renderProps: String,
         renderState: State,
         context: RenderContext
     ): SearchScreen {
@@ -39,10 +40,10 @@ object SearchWorkflow : StatefulWorkflow<Unit, State, SearchRequest, SearchScree
             searchByOptions = renderState.searchByOptions,
             searchBy = renderState.searchBy,
             query = renderState.query,
-            errorMsg = renderState.errorMsg,
+            message = renderState.message,
             onSearchTapped = context.eventHandler("onSearchTapped") {
                 if (renderState.query.textValue.isEmpty()) {
-                    state = state.copy(errorMsg = "Search Query is required")
+                    state = state.copy(message = "Enter a keyword to start searching")
                 } else {
                     setOutput(
                         SearchRequest(

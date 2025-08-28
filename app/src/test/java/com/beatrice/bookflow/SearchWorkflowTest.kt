@@ -40,7 +40,7 @@ class SearchWorkflowTest {
             }
             .testNextRender()
             .render{ screen ->
-                assertEquals("Search Query is required", screen.errorMsg)
+                assertEquals("Search Query is required", screen.message)
             }
     }
 }

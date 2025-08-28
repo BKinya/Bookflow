@@ -8,7 +8,6 @@ import com.beatrice.bookflow.presentation.RootNavigationWorkflow.State
 import com.beatrice.bookflow.presentation.RootNavigationWorkflow.State.LoadingSearchResult
 import com.beatrice.bookflow.presentation.RootNavigationWorkflow.State.ShowSearchResult
 import com.beatrice.bookflow.presentation.RootNavigationWorkflow.State.ShowSearchScreen
-import com.beatrice.bookflow.presentation.search.ErrorScreen
 import com.beatrice.bookflow.presentation.search.LoadingScreen
 import com.beatrice.bookflow.presentation.search.SearchWorkflow
 import com.beatrice.bookflow.presentation.searchResult.SearchResultWorkflow
@@ -26,7 +25,7 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
 
 
     sealed interface State {
-        data object ShowSearchScreen : State
+        data class ShowSearchScreen(val message: String = "") : State
         data class LoadingSearchResult(
             val searchBy: String,
             val query: String
@@ -43,7 +42,7 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
 
     }
 
-    override fun initialState(props: Unit, snapshot: Snapshot?): State = ShowSearchScreen
+    override fun initialState(props: Unit, snapshot: Snapshot?): State = ShowSearchScreen(message = "")
 
     override fun render(
         renderProps: Unit,
@@ -52,7 +51,7 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
     ): BackStackScreen<*> {
         val searchScreen = context.renderChild(
             child = SearchWorkflow,
-            props = Unit
+            props = ""
         ) { output ->
             onSearch(output.searchBy, output.query)
         }
@@ -103,7 +102,7 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
 
             }
 
-            is State.ShowError -> BackStackScreen(ErrorScreen(renderState.message))
+            is State.ShowError -> BackStackScreen(searchScreen.copy(message = renderState.message))
 
         }
     }
@@ -118,6 +117,6 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
     }
 
     private fun onBackNavigation() = action("backNavigation") {
-        state = ShowSearchScreen
+        state = ShowSearchScreen()
     }
 }

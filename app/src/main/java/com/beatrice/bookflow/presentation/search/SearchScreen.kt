@@ -52,7 +52,7 @@ import com.squareup.workflow1.ui.compose.asMutableTextFieldValueState
 internal val OPTIONS = listOf("All", "Title", "Author", "Text", "Subject", "Lists")
 
 data class SearchScreen(
-    val errorMsg: String? = null,
+    val message: String? = null,
     val searchByOptions: List<String> = OPTIONS,
     val searchBy: TextController = TextController(initialValue = OPTIONS[0]),
     val query: TextController = TextController(),
@@ -103,7 +103,7 @@ private fun Content(
 
         Spacer(Modifier.height(84.dp))
         Box(modifier = Modifier.fillMaxWidth()) {
-            screen.errorMsg?.let {
+            screen.message?.let {
                 Text(
                     modifier = Modifier.align(alignment = Alignment.CenterStart),
                     text = it,
