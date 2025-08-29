@@ -7,7 +7,7 @@ import com.squareup.workflow1.StatefulWorkflow
 import com.squareup.workflow1.ui.TextController
 
 
-object SearchWorkflow : StatefulWorkflow<String, State, SearchRequest, SearchScreen>() {
+object SearchWorkflow : StatefulWorkflow<String?, State, SearchRequest, SearchScreen>() {
 
     data class SearchRequest(
         val searchBy: String,
@@ -22,7 +22,7 @@ object SearchWorkflow : StatefulWorkflow<String, State, SearchRequest, SearchScr
     )
 
     override fun initialState(
-        props: String,
+        props: String?,
         snapshot: Snapshot?
     ): State = State(
         searchByOptions = OPTIONS,
@@ -32,11 +32,10 @@ object SearchWorkflow : StatefulWorkflow<String, State, SearchRequest, SearchScr
     )
 
     override fun render(
-        renderProps: String,
+        renderProps: String?,
         renderState: State,
         context: RenderContext
     ): SearchScreen {
-        println("New State search --> $renderState")
         return SearchScreen(
             searchByOptions = renderState.searchByOptions,
             searchBy = renderState.searchBy,

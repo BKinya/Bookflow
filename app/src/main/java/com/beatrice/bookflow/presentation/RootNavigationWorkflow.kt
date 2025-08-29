@@ -25,7 +25,7 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
 
 
     sealed interface State {
-        data class ShowSearchScreen(val message: String = "") : State
+        data class ShowSearchScreen(val message: String? = null) : State
         data class LoadingSearchResult(
             val searchBy: String,
             val query: String
@@ -43,7 +43,7 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
     }
 
     override fun initialState(props: Unit, snapshot: Snapshot?): State =
-        ShowSearchScreen(message = "")
+        ShowSearchScreen()
 
     override fun render(
         renderProps: Unit,
@@ -52,7 +52,7 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
     ): BackStackScreen<*> {
         val searchScreen = context.renderChild(
             child = SearchWorkflow,
-            props = ""
+            props = null
         ) { output ->
             onSearch(output.searchBy, output.query)
         }
