@@ -16,6 +16,7 @@ import com.squareup.workflow1.Snapshot
 import com.squareup.workflow1.StatefulWorkflow
 import com.squareup.workflow1.action
 import com.squareup.workflow1.runningWorker
+import com.squareup.workflow1.ui.TextController
 import com.squareup.workflow1.ui.navigation.BackStackScreen
 import com.squareup.workflow1.ui.navigation.toBackStackScreen
 import org.koin.java.KoinJavaComponent.inject
@@ -25,7 +26,7 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
 
 
     sealed interface State {
-        data class ShowSearchScreen(val message: String? = null) : State
+        data object ShowSearchScreen : State
         data class LoadingSearchResult(
             val searchBy: String,
             val query: String
@@ -37,13 +38,16 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
             val result: SearchResult
         ) : State
 
-        @JvmInline
-        value class ShowError(val message: String) : State
+        data class ShowError(
+            val message: String,
+            val searchBy: String,
+            val query: String
+        ) : State
 
     }
 
     override fun initialState(props: Unit, snapshot: Snapshot?): State =
-        ShowSearchScreen()
+        ShowSearchScreen
 
     override fun render(
         renderProps: Unit,
@@ -52,7 +56,8 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
     ): BackStackScreen<*> {
         val searchScreen = context.renderChild(
             child = SearchWorkflow,
-            props = null
+            props = null,
+            key = "search"
         ) { output ->
             onSearch(output.searchBy, output.query)
         }
@@ -83,7 +88,9 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
                             newState =
                                 State.ShowError(
                                     message = "Unfortunately we have an issue with your request. " +
-                                            "Try again later"
+                                            "Try again later",
+                                    searchBy = renderState.searchBy,
+                                    query = renderState.query
                                 )
                         )
                     }
@@ -106,7 +113,21 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
 
             }
 
-            is State.ShowError -> BackStackScreen(searchScreen.copy(message = renderState.message))
+            is State.ShowError -> {
+                val searchScreenWithError = context.renderChild(
+                    child = SearchWorkflow,
+                    props = SearchWorkflow.SearchProps(
+                        message = renderState.message,
+                        searchBy = TextController(renderState.searchBy),
+                        query = TextController(renderState.query)
+                    ),
+                    key = "searchWithError"
+                ) { output ->
+                    println("mhhhh")
+                    onSearch(output.searchBy, output.query)
+                }
+                BackStackScreen(searchScreenWithError)
+            }
 
         }
     }
@@ -122,6 +143,6 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
     }
 
     private fun onBackNavigation() = action("backNavigation") {
-        state = ShowSearchScreen()
+        state = ShowSearchScreen
     }
 }

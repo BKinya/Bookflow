@@ -111,12 +111,13 @@ private fun Content(
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Light,
                         fontStyle = FontStyle.Normal,
-                        color = Color.Red
+                        color = Color.Gray
                     )
                 )
-                Spacer(Modifier.height(4.dp))
+
             }
         }
+        Spacer(Modifier.height(8.dp))
         SearchRow(
             selectedOption = selectedOption.value,
             onSelectedOptionChanged = { option ->
@@ -132,7 +133,7 @@ private fun Content(
         Spacer(Modifier.height(32.dp))
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = screen.onSearchTapped
+            onClick = screen.onSearchTappedq
         ) {
             Text(
                 modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
