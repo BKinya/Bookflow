@@ -42,7 +42,8 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
 
     }
 
-    override fun initialState(props: Unit, snapshot: Snapshot?): State = ShowSearchScreen(message = "")
+    override fun initialState(props: Unit, snapshot: Snapshot?): State =
+        ShowSearchScreen(message = "")
 
     override fun render(
         renderProps: Unit,
@@ -78,10 +79,13 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
                             )
                         )
 
-                        is NetworkResult.Error -> updateState(newState =
-                            State.ShowError(
-                                message = "Unfortunately we have an issue with your request. " +
-                                        "Try again later"))
+                        is NetworkResult.Error -> updateState(
+                            newState =
+                                State.ShowError(
+                                    message = "Unfortunately we have an issue with your request. " +
+                                            "Try again later"
+                                )
+                        )
                     }
                 }
                 BackStackScreen(LoadingScreen)
@@ -112,7 +116,8 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
         state = newState
     }
 
-    private fun onSearch(searchBy: String, query: String) = action("search") {
+
+    private fun onSearch(searchBy: String, query: String) = action("onSearch") {
         state = LoadingSearchResult(searchBy = searchBy, query = query)
     }
 

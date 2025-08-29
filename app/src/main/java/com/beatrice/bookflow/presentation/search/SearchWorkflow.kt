@@ -18,7 +18,7 @@ object SearchWorkflow : StatefulWorkflow<String, State, SearchRequest, SearchScr
         val searchByOptions: List<String>,
         val searchBy: TextController,
         val query: TextController,
-        val message: String = ""
+        val message: String? = null
     )
 
     override fun initialState(
@@ -36,6 +36,7 @@ object SearchWorkflow : StatefulWorkflow<String, State, SearchRequest, SearchScr
         renderState: State,
         context: RenderContext
     ): SearchScreen {
+        println("New State search --> $renderState")
         return SearchScreen(
             searchByOptions = renderState.searchByOptions,
             searchBy = renderState.searchBy,
