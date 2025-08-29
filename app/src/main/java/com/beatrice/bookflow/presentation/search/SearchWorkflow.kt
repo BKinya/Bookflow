@@ -34,7 +34,7 @@ object SearchWorkflow : StatefulWorkflow<SearchProps?, State, SearchRequest, Sea
     ): State = State(
         searchByOptions = OPTIONS,
         searchBy = props?.searchBy ?: TextController(initialValue = OPTIONS[0]),
-        query = props?.query?: TextController(),
+        query = props?.query ?: TextController(),
         message = props?.message
     )
 
@@ -45,7 +45,7 @@ object SearchWorkflow : StatefulWorkflow<SearchProps?, State, SearchRequest, Sea
     ): SearchScreen {
         return SearchScreen(
             searchByOptions = renderState.searchByOptions,
-            searchBy =  renderState.searchBy,
+            searchBy = renderState.searchBy,
             query = renderState.query,
             message = renderState.message,
             onSearchTapped = context.eventHandler("onSearchTapped") {
@@ -62,5 +62,6 @@ object SearchWorkflow : StatefulWorkflow<SearchProps?, State, SearchRequest, Sea
             }
         )
     }
+
     override fun snapshotState(state: State): Snapshot? = null
 }

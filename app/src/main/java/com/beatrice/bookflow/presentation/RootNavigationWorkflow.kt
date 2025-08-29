@@ -123,7 +123,6 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
                     ),
                     key = "searchWithError"
                 ) { output ->
-                    println("mhhhh")
                     onSearch(output.searchBy, output.query)
                 }
                 BackStackScreen(searchScreenWithError)

@@ -133,7 +133,7 @@ private fun Content(
         Spacer(Modifier.height(32.dp))
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = screen.onSearchTappedq
+            onClick = screen.onSearchTapped
         ) {
             Text(
                 modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
