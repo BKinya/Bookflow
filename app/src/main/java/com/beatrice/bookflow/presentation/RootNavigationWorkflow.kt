@@ -8,7 +8,6 @@ import com.beatrice.bookflow.presentation.RootNavigationWorkflow.State
 import com.beatrice.bookflow.presentation.RootNavigationWorkflow.State.LoadingSearchResult
 import com.beatrice.bookflow.presentation.RootNavigationWorkflow.State.ShowSearchResult
 import com.beatrice.bookflow.presentation.RootNavigationWorkflow.State.ShowSearchScreen
-import com.beatrice.bookflow.presentation.search.ErrorScreen
 import com.beatrice.bookflow.presentation.search.LoadingScreen
 import com.beatrice.bookflow.presentation.search.SearchWorkflow
 import com.beatrice.bookflow.presentation.searchResult.SearchResultWorkflow
@@ -17,6 +16,7 @@ import com.squareup.workflow1.Snapshot
 import com.squareup.workflow1.StatefulWorkflow
 import com.squareup.workflow1.action
 import com.squareup.workflow1.runningWorker
+import com.squareup.workflow1.ui.TextController
 import com.squareup.workflow1.ui.navigation.BackStackScreen
 import com.squareup.workflow1.ui.navigation.toBackStackScreen
 import org.koin.java.KoinJavaComponent.inject
@@ -38,12 +38,16 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
             val result: SearchResult
         ) : State
 
-        @JvmInline
-        value class ShowError(val message: String) : State
+        data class ShowError(
+            val message: String,
+            val searchBy: String,
+            val query: String
+        ) : State
 
     }
 
-    override fun initialState(props: Unit, snapshot: Snapshot?): State = ShowSearchScreen
+    override fun initialState(props: Unit, snapshot: Snapshot?): State =
+        ShowSearchScreen
 
     override fun render(
         renderProps: Unit,
@@ -52,7 +56,8 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
     ): BackStackScreen<*> {
         val searchScreen = context.renderChild(
             child = SearchWorkflow,
-            props = Unit
+            props = null,
+            key = "search"
         ) { output ->
             onSearch(output.searchBy, output.query)
         }
@@ -79,10 +84,15 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
                             )
                         )
 
-                        is NetworkResult.Error -> updateState(newState =
-                            State.ShowError(
-                                message = "Unfortunately we have an issue with your request. " +
-                                        "Try again later"))
+                        is NetworkResult.Error -> updateState(
+                            newState =
+                                State.ShowError(
+                                    message = "Unfortunately we have an issue with your request. " +
+                                            "Try again later",
+                                    searchBy = renderState.searchBy,
+                                    query = renderState.query
+                                )
+                        )
                     }
                 }
                 BackStackScreen(LoadingScreen)
@@ -103,7 +113,20 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
 
             }
 
-            is State.ShowError -> BackStackScreen(ErrorScreen(renderState.message))
+            is State.ShowError -> {
+                val searchScreenWithError = context.renderChild(
+                    child = SearchWorkflow,
+                    props = SearchWorkflow.SearchProps(
+                        message = renderState.message,
+                        searchBy = TextController(renderState.searchBy),
+                        query = TextController(renderState.query)
+                    ),
+                    key = "searchWithError"
+                ) { output ->
+                    onSearch(output.searchBy, output.query)
+                }
+                BackStackScreen(searchScreenWithError)
+            }
 
         }
     }
@@ -113,7 +136,8 @@ object RootNavigationWorkflow : StatefulWorkflow<Unit, State, Nothing, BackStack
         state = newState
     }
 
-    private fun onSearch(searchBy: String, query: String) = action("search") {
+
+    private fun onSearch(searchBy: String, query: String) = action("onSearch") {
         state = LoadingSearchResult(searchBy = searchBy, query = query)
     }
 
