@@ -6,7 +6,9 @@ The app is created using Square's [workflow](https://github.com/square/workflow-
 Workflow is a unidirectional data flow library, modeling the app's presentation layer as a state machine.
 
 ## Demo
+<div align="center">
 <video width = "100" src = "https://github.com/user-attachments/assets/78160e2a-c588-4cf1-8231-511fba6fec2f"></video>
+</div>
 
 # Resources
 - [Square's workflow library](https://github.com/square/workflow-kotlin/tree/main)
